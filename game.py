@@ -5,7 +5,10 @@ from enum import Enum
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
+icon = pygame.image.load('res/war.png')
+pygame.display.set_icon(icon)
 pygame.display.set_caption('Tanks 2D')
+
 background = pygame.image.load('res/ground.jpg')
 
 class Direction(Enum):
@@ -158,8 +161,8 @@ def checkCollisions(bullet):
 
 
 mainloop = True
-arys = Tank(300, 300, 800//6, (255, 0, 0), fire=pygame.K_RETURN)
-era = Tank(100, 100, 800//6, (0, 255, 0), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s)
+arys = Tank(300, 300, 800//6, (0x56, 0x88, 0x5f), fire=pygame.K_RETURN)
+era = Tank(100, 100, 800//6, (0x94, 0x73, 0x29), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s)
 # tank3 = Tank(100, 100, 800//6, (0, 0, 0xff), pygame.K_h, pygame.K_f, pygame.K_t, pygame.K_g, pygame.K_2)
 # tank4 = Tank(100, 100, 800//6, (0xff, 255, 0), pygame.K_l, pygame.K_j, pygame.K_i, pygame.K_k, pygame.K_3)
 tanks = [arys, era]
