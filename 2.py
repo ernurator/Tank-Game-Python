@@ -25,6 +25,8 @@ class Bullet:
         self.length = 6
         self.direction = tank.direction
         self.speed = 500
+        self.lifetime = 0
+        self.destroytime = 3 # seconds
         if tank.direction == Direction.RIGHT:
             self.x = tank.x + 3*tank.width//2
             self.y = tank.y + tank.width//2
@@ -53,6 +55,8 @@ class Bullet:
         pygame.draw.ellipse(screen, self.color, (self.x, self.y, self.width, self.height))
         
     def move(self, sec):
+        self.lifetime += sec
+
         if self.direction == Direction.RIGHT:
             self.x += int(self.speed * sec)
         
@@ -70,6 +74,8 @@ class Bullet:
 ##########################################    Tanks    ##########################################
 
 
+max_lifes = 3
+
 class Tank:
 
     def __init__(self, x, y, speed, color, d_right = pygame.K_RIGHT, d_left = pygame.K_LEFT, d_up = pygame.K_UP, d_down = pygame.K_DOWN, fire = pygame.K_SPACE):
@@ -78,6 +84,7 @@ class Tank:
         self.speed = speed
         self.color = color
         self.width = 40
+        self.lifes = max_lifes
         self.direction = Direction.RIGHT
         self.is_static = True
         self.fire_key = fire
@@ -86,20 +93,21 @@ class Tank:
 
     def draw(self):
         tank_c = (self.x + self.width // 2, self.y +self.width // 2)
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.width), 2)
-        pygame.draw.circle(screen, self.color, tank_c, self.width // 2)
+        dynamic = tuple(int(i * self.lifes / max_lifes) for i in self.color)
+        pygame.draw.rect(screen, dynamic, (self.x, self.y, self.width, self.width), 2)
+        pygame.draw.circle(screen, dynamic, tank_c, self.width // 2)
 
         if self.direction == Direction.RIGHT:
-            pygame.draw.line(screen, self.color, tank_c, (self.x + 3*self.width//2, self.y + self.width//2), 4)
+            pygame.draw.line(screen, dynamic, tank_c, (self.x + 3*self.width//2, self.y + self.width//2), 4)
         
         if self.direction == Direction.LEFT:
-            pygame.draw.line(screen, self.color, tank_c, (self.x - self.width//2, self.y + self.width//2), 4)
+            pygame.draw.line(screen, dynamic, tank_c, (self.x - self.width//2, self.y + self.width//2), 4)
         
         if self.direction == Direction.UP:
-            pygame.draw.line(screen, self.color, tank_c, (self.x + self.width//2, self.y - self.width//2), 4)
+            pygame.draw.line(screen, dynamic, tank_c, (self.x + self.width//2, self.y - self.width//2), 4)
 
         if self.direction == Direction.DOWN:
-            pygame.draw.line(screen, self.color, tank_c, (self.x + self.width//2, self.y + 3*self.width//2), 4)
+            pygame.draw.line(screen, dynamic, tank_c, (self.x + self.width//2, self.y + 3*self.width//2), 4)
 
 
     def changeDirection(self, direction):
@@ -138,7 +146,8 @@ def checkCollisions(bullet):
         dist_x = bullet.x - tanks[i].x
         dist_y = bullet.y - tanks[i].y
         if -bullet.width <= dist_x <= tanks[i].width and -bullet.height <= dist_y <= tanks[i].width and bullet.tank != tanks[i]:
-            del tanks[i]
+            tanks[i].lifes -= 1
+            if tanks[i].lifes <= 0: del tanks[i]
             return True
     return False
 
@@ -147,8 +156,8 @@ def checkCollisions(bullet):
 
 
 mainloop = True
-arys = Tank(300, 300, 800//6, (255, 0, 0))
-era = Tank(100, 100, 800//6, (0, 255, 0), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s, pygame.K_1)
+arys = Tank(300, 300, 800//6, (255, 0, 0), fire=pygame.K_RETURN)
+era = Tank(100, 100, 800//6, (0, 255, 0), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s)
 # tank3 = Tank(100, 100, 800//6, (0, 0, 0xff), pygame.K_h, pygame.K_f, pygame.K_t, pygame.K_g, pygame.K_2)
 # tank4 = Tank(100, 100, 800//6, (0xff, 255, 0), pygame.K_l, pygame.K_j, pygame.K_i, pygame.K_k, pygame.K_3)
 tanks = [arys, era]
@@ -194,7 +203,7 @@ while mainloop:
     for i in range(len(bullets)):
         if i >= len(bullets): break
         bullets[i].move(seconds)
-        if checkCollisions(bullets[i]): del bullets[i]
+        if checkCollisions(bullets[i]) or bullets[i].lifetime > bullets[i].destroytime: del bullets[i]
 
     pygame.display.flip()
 
