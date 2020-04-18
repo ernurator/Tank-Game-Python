@@ -5,6 +5,8 @@ from enum import Enum
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption('Tanks 2D')
+background = pygame.image.load('res/ground.jpg')
 
 class Direction(Enum):
     UP = 1
@@ -197,7 +199,7 @@ while mainloop:
             tank.is_static = True
             
 
-    screen.fill((0, 0, 0))
+    screen.blit(background, (0, 0))
     for tank in tanks:
         tank.move(seconds)
     for i in range(len(bullets)):
