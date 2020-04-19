@@ -31,7 +31,7 @@ class Bullet:
         self.direction = tank.direction
         self.speed = 500
         self.lifetime = 0
-        self.destroytime = 3 # seconds
+        self.destroytime = 3  # seconds
         if tank.direction == Direction.RIGHT:
             self.x = tank.x + 3*tank.width//2
             self.y = tank.y + tank.width//2
@@ -74,16 +74,17 @@ class Bullet:
         if self.direction == Direction.DOWN:
             self.y += int(self.speed * sec)
         self.draw()
-    
+
 
 ##########################################    Tanks    ##########################################
 
 
-max_lifes = 3
+max_lifes = 30
+
 
 class Tank:
 
-    def __init__(self, x, y, speed, color, d_right = pygame.K_RIGHT, d_left = pygame.K_LEFT, d_up = pygame.K_UP, d_down = pygame.K_DOWN, fire = pygame.K_SPACE):
+    def __init__(self, x, y, speed, color, d_right=pygame.K_RIGHT, d_left=pygame.K_LEFT, d_up=pygame.K_UP, d_down=pygame.K_DOWN, fire=pygame.K_SPACE):
         self.x = x
         self.y = y
         self.speed = speed
@@ -97,7 +98,7 @@ class Tank:
         self.KEY = {d_right: Direction.RIGHT, d_left: Direction.LEFT, d_up: Direction.UP, d_down: Direction.DOWN}
 
     def draw(self):
-        tank_c = (self.x + self.width // 2, self.y +self.width // 2)
+        tank_c = (self.x + self.width // 2, self.y + self.width // 2)
         dynamic = tuple(int(i * self.lifes / max_lifes) for i in self.color)
         pygame.draw.rect(screen, dynamic, (self.x, self.y, self.width, self.width), 2)
         pygame.draw.circle(screen, dynamic, tank_c, self.width // 2)
@@ -119,26 +120,32 @@ class Tank:
         self.direction = direction
 
     def move(self, sec):
+        global tanks
         if not self.is_static:
+            dx = 0
+            dy = 0
             if self.direction == Direction.RIGHT:
-                self.x += int(self.speed * sec)
-                if self.x > screen.get_size()[0]:
-                    self.x = 0 - 40
+                dx = int(self.speed * sec)
+                if self.x + dx > screen.get_size()[0]:
+                    dx = -self.x - 40
             
             if self.direction == Direction.LEFT:
-                self.x -= int(self.speed * sec)
-                if self.x < -self.width:
-                    self.x = screen.get_size()[0] + 40
+                dx = -int(self.speed * sec)
+                if self.x + dx < -self.width:
+                    dx = -self.x + screen.get_size()[0] + 40
             
             if self.direction == Direction.UP:
-                self.y -= int(self.speed * sec)
-                if self.y < -self.width:
-                    self.y = screen.get_size()[1] + 40
+                dy = -int(self.speed * sec)
+                if self.y + dy < -self.width:
+                    dy = -self.y + screen.get_size()[1] + 40
 
             if self.direction == Direction.DOWN:
-                self.y += int(self.speed * sec)
-                if self.y > screen.get_size()[1]:
-                    self.y = 0 - 40
+                dy = int(self.speed * sec)
+                if self.y + dy > screen.get_size()[1]:
+                    dy = -self.y - 40
+
+            if not any([pygame.Rect(self.x + dx, self.y + dy, self.width, self.width).colliderect(pygame.Rect(tank.x, tank.y, tank.width, tank.width)) for tank in tanks if self != tank]):
+                self.x, self.y = self.x + dx, self.y + dy
         self.draw()
 
 
@@ -161,8 +168,8 @@ def checkCollisions(bullet):
 
 
 mainloop = True
-arys = Tank(300, 300, 800//6, (0x56, 0x88, 0x5f), fire=pygame.K_RETURN)
-era = Tank(100, 100, 800//6, (0x94, 0x73, 0x29), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s)
+arys = Tank(700, 300, 800//6, (3, 102, 6), fire=pygame.K_RETURN)
+era = Tank(100, 300, 800//6, (135, 101, 26), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s)
 # tank3 = Tank(100, 100, 800//6, (0, 0, 0xff), pygame.K_h, pygame.K_f, pygame.K_t, pygame.K_g, pygame.K_2)
 # tank4 = Tank(100, 100, 800//6, (0xff, 255, 0), pygame.K_l, pygame.K_j, pygame.K_i, pygame.K_k, pygame.K_3)
 tanks = [arys, era]
