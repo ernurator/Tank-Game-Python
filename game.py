@@ -1,15 +1,26 @@
 import pygame
-import random
 from enum import Enum
 #pylint: disable=no-member
 
 pygame.init()
+pygame.mixer.init()
+
+
+##########################################    Upload files    ##########################################
+
+
 screen = pygame.display.set_mode((800, 600))
 icon = pygame.image.load('res/war.png')
 pygame.display.set_icon(icon)
 pygame.display.set_caption('Tanks 2D')
 
 background = pygame.image.load('res/ground.jpg')
+
+sound_col = pygame.mixer.Sound('res/collision.wav')
+sound_col.set_volume(0.2)
+
+sound_shoot = pygame.mixer.Sound('res/shoot.wav')
+sound_shoot.set_volume(0.2)
 
 class Direction(Enum):
     UP = 1
@@ -24,6 +35,7 @@ class Direction(Enum):
 class Bullet:
 
     def __init__(self, tank):
+        sound_shoot.play()
         self.tank = tank
         self.color = tank.color
         self.width = 4
@@ -79,7 +91,7 @@ class Bullet:
 ##########################################    Tanks    ##########################################
 
 
-max_lifes = 30
+max_lifes = 3
 
 
 class Tank:
@@ -153,11 +165,12 @@ class Tank:
 
 
 def checkCollisions(bullet):
-    global tanks    
+    global tanks
     for i in range(len(tanks)):
         dist_x = bullet.x - tanks[i].x
         dist_y = bullet.y - tanks[i].y
         if -bullet.width <= dist_x <= tanks[i].width and -bullet.height <= dist_y <= tanks[i].width and bullet.tank != tanks[i]:
+            sound_col.play()
             tanks[i].lifes -= 1
             if tanks[i].lifes <= 0: del tanks[i]
             return True
