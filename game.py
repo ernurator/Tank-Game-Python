@@ -39,7 +39,7 @@ class Bullet:
         self.tank = tank
         self.color = tank.color
         self.width = 4
-        self.length = 6
+        self.height = 8
         self.direction = tank.direction
         self.speed = 500
         self.lifetime = 0
@@ -47,26 +47,20 @@ class Bullet:
         if tank.direction == Direction.RIGHT:
             self.x = tank.x + 3*tank.width//2
             self.y = tank.y + tank.width//2
-            self.height = 4
-            self.width = 6
+            self.height, self.width = self.width, self.height
         
         if tank.direction == Direction.LEFT:
             self.x = tank.x - tank.width//2
             self.y = tank.y + tank.width//2
-            self.height = 4
-            self.width = 6
+            self.height, self.width = self.width, self.height
         
         if tank.direction == Direction.UP:
             self.x = tank.x + tank.width//2
             self.y = tank.y - tank.width//2
-            self.height = 6
-            self.width = 4
 
         if tank.direction == Direction.DOWN:
             self.x = tank.x + tank.width//2
             self.y = tank.y + 3*tank.width//2
-            self.height = 6
-            self.width = 4
         
     def draw(self):
         pygame.draw.ellipse(screen, self.color, (self.x, self.y, self.width, self.height))
@@ -139,22 +133,22 @@ class Tank:
             if self.direction == Direction.RIGHT:
                 dx = int(self.speed * sec)
                 if self.x + dx > screen.get_size()[0]:
-                    dx = -self.x - 40
+                    dx = -self.x - self.width
             
             if self.direction == Direction.LEFT:
                 dx = -int(self.speed * sec)
                 if self.x + dx < -self.width:
-                    dx = -self.x + screen.get_size()[0] + 40
+                    dx = -self.x + screen.get_size()[0] + self.width
             
             if self.direction == Direction.UP:
                 dy = -int(self.speed * sec)
                 if self.y + dy < -self.width:
-                    dy = -self.y + screen.get_size()[1] + 40
+                    dy = -self.y + screen.get_size()[1] + self.width
 
             if self.direction == Direction.DOWN:
                 dy = int(self.speed * sec)
                 if self.y + dy > screen.get_size()[1]:
-                    dy = -self.y - 40
+                    dy = -self.y - self.width
 
             if not any([pygame.Rect(self.x + dx, self.y + dy, self.width, self.width).colliderect(pygame.Rect(tank.x, tank.y, tank.width, tank.width)) for tank in tanks if self != tank]):
                 self.x, self.y = self.x + dx, self.y + dy
@@ -184,7 +178,7 @@ mainloop = True
 arys = Tank(700, 300, 800//6, (3, 102, 6), fire=pygame.K_RETURN)
 era = Tank(100, 300, 800//6, (135, 101, 26), pygame.K_d, pygame.K_a, pygame.K_w, pygame.K_s)
 # tank3 = Tank(100, 100, 800//6, (0, 0, 0xff), pygame.K_h, pygame.K_f, pygame.K_t, pygame.K_g, pygame.K_2)
-# tank4 = Tank(100, 100, 800//6, (0xff, 255, 0), pygame.K_l, pygame.K_j, pygame.K_i, pygame.K_k, pygame.K_3)
+# tank4 = Tank(100, 200, 800//6, (0xff, 255, 0), pygame.K_l, pygame.K_j, pygame.K_i, pygame.K_k, pygame.K_3)
 tanks = [arys, era]
 bullets = []
 
@@ -221,8 +215,8 @@ while mainloop:
         if stay:
             tank.is_static = True
             
-
-    screen.blit(background, (0, 0))
+    screen.fill((255 ,255, 255))
+    # screen.blit(background, (0, 0))
     for tank in tanks:
         tank.move(seconds)
     for i in range(len(bullets)):
