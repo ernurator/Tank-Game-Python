@@ -1,2 +1,4 @@
-# TankGamePython
-Tanks game in python using pygame
+# Tank Game
+
+Tanks game in python (created using Pygame)
+
